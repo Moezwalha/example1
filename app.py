@@ -6,8 +6,10 @@ from preprocess2 import test_transforms
 import torch
 from PIL import Image
 
+global classes
 classes = ["but","clear","ear","experiencing","fever","have been","hearing","in","a lot of"," I","my","name is","no","is not","pain","right","thank you"]
 
+global model_test
 model_test = torch.load('my_model130(2).pth', map_location=torch.device('cpu'))
 
 app = Flask(__name__)
@@ -27,9 +29,10 @@ def main():
                 # Apply the transformations
                 img_tensor = test_transforms(cropped_hand_array)
                 #Make a prediction using the model
-                prediction = model_test(img_tensor[None].to("cpu"))            
-                # Get the predicted label
-                pred_label = classes[torch.max(prediction, dim=1)[1]]
+                with torch.no_grad():
+                        prediction = model_test(img_tensor[None].to("cpu"))            
+                        # Get the predicted label
+                        pred_label = classes[torch.max(prediction, dim=1)[1]]
 
         return jsonify({
               "message": pred_label
